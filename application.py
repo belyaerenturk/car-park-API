@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 
@@ -48,6 +48,32 @@ def delete_space(id):
     db.session.delete(space)
     db.session.commit()
     return {"message": "successful"}
+
+# @app.route('/spaces/<int:id>', methods=['GET', 'POST'])
+# def edit_space(id):
+#     space = Space.query.get_or_404(id)
+#     if request.method == "POST":
+#         space.isFull = request.json['isFull']
+#         try:
+#             db.session.commit()
+#             return jsonify({'parkSlot': space.parkSlot, 'isFull': space.isFull})
+#         except:
+#             return {'error': 'Looks like there was a problem... Try again'}
+#     else:
+#         return jsonify({'parkSlot': space.parkSlot, 'isFull': space.isFull})
+
+@app.route('/spaces/<int:id>', methods=['GET', 'POST'])
+def edit_space(id):
+    space = Space.query.get_or_404(id)
+    if request.method == "POST":
+        space.isFull = request.args.get('isFull', default=False, type=lambda v: v.lower() == 'true')
+        try:
+            db.session.commit()
+            return jsonify({'parkSlot': space.parkSlot, 'isFull': space.isFull})
+        except:
+            return {'error': 'Looks like there was a problem... Try again'}
+    else:
+        return jsonify({'parkSlot': space.parkSlot, 'isFull': space.isFull})
 
 if __name__ == "__main__":
     app.debug=True
